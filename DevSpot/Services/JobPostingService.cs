@@ -21,6 +21,16 @@ namespace DevSpot.Services
         public async Task UpdateJobPostingAsync(JobPosting jobPosting) => await _repository.UpdateAsync(jobPosting);
 
         public async Task DeleteJobPostingAsync(int id) => await _repository.DeleteAsync(id);
+
+        public async Task<object?> GetJobPostingAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<object?> GetJobPostingAsync(Guid invalidId)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }
