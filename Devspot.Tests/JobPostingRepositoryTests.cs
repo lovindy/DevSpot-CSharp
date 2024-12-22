@@ -28,7 +28,7 @@ namespace Devspot.Tests
         [Fact]
         public async Task AddJobPostingAsync_ShouldAddJobPosting()
         {
-
+            
 
         }
 
