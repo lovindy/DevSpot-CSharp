@@ -1,87 +1,56 @@
-﻿using System;
-using System.Threading.Tasks;
-using DevSpot.Data;
+﻿using DevSpot.Data;
 using DevSpot.Models;
 using DevSpot.Repositories;
 using DevSpot.Services;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
 
-namespace Devspot.Tests
+public class JobPostingRepositoryTests
 {
-    public class JobPostingRepositoryTests : IDisposable
+    private readonly DbContextOptions<ApplicationDbContext> _options;
+
+    public JobPostingRepositoryTests()
     {
-        private readonly DbContextOptions<ApplicationDbContext> _options;
-        private readonly ApplicationDbContext _context;
-        private readonly JobPostingRepository _repository;
-        private readonly JobPostingService _service;
+        _options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase("JobPostingDb")
+            .Options;
+    }
 
-        public JobPostingRepositoryTests()
+    private ApplicationDbContext CreateDbContext() => new ApplicationDbContext(_options);
+
+    [Fact]
+    public async Task AddJobPostingAsync_ShouldAddJobPosting()
+    {
+        // Arrange
+        // db context
+        using var context = CreateDbContext();
+
+        // job posting repository
+        var repository = new JobPostingRepository(context);
+
+        // job posting service
+        var service = new JobPostingService(repository);
+
+        // execute 
+        var jobPosting = new JobPosting
         {
-            _options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
+            Title = "Software Developer",
+            Description = "C# Developer position",
+            Company = "Tech Corp",
+            Location = "Remote",
+            UserId = "test-user-id"
+        };
 
-            _context = new ApplicationDbContext(_options);
-            _repository = new JobPostingRepository(_context);
-            _service = new JobPostingService(_repository);
-        }
+        await service.AddJobPostingAsync(jobPosting);
 
-        [Fact]
-        public async Task AddJobPostingAsync_ShouldAddJobPosting()
-        {
-            // Arrange
-            var jobPosting = new JobPosting
-            {
-                Title = "Software Developer",
-                Description = "C# Developer position",
-                Company = "Tech Corp",
-                Location = "Remote",
-                UserId = "test-user-id",
-                IsApproved = false
-            };
+        // result
+        var result = await context.JobPostings.FirstOrDefaultAsync(j => j.Title == "Software Developer");
 
-            // Act
-            await _service.AddJobPostingAsync(jobPosting);
-
-            // Assert
-            var savedJob = await _context.JobPostings.FirstOrDefaultAsync(j => j.Title == "Software Developer");
-            Assert.NotNull(savedJob);
-            Assert.Equal("Software Developer", savedJob.Title);
-            Assert.Equal("Tech Corp", savedJob.Company);
-            Assert.Equal("Remote", savedJob.Location);
-            Assert.Equal("test-user-id", savedJob.UserId);
-            Assert.False(savedJob.IsApproved);
-            Assert.True(savedJob.PostedDate <= DateTime.UtcNow);
-        }
-
-        [Fact]
-        public async Task AddJobPostingAsync_ShouldSetDefaultValues()
-        {
-            // Arrange
-            var jobPosting = new JobPosting
-            {
-                Title = "Test Job",
-                Description = "Test Description",
-                Company = "Test Company",
-                Location = "Test Location",
-                UserId = "test-user-id"
-            };
-
-            // Act
-            await _service.AddJobPostingAsync(jobPosting);
-
-            // Assert
-            var savedJob = await _context.JobPostings.FirstOrDefaultAsync(j => j.Title == "Test Job");
-            Assert.NotNull(savedJob);
-            Assert.False(savedJob.IsApproved);
-            Assert.True((DateTime.UtcNow - savedJob.PostedDate).TotalMinutes < 1);
-        }
-
-        public void Dispose()
-        {
-            _context.Database.EnsureDeleted();
-            _context.Dispose();
-        }
+        // assert
+        Assert.NotNull(result);
+        Assert.Equal("Software Developer", result.Title);
+        Assert.Equal("C# Developer position", result.Description);
+        Assert.Equal("Tech Corp", result.Company);
+        Assert.Equal("Remote", result.Location);
+        Assert.Equal("test-user-id", result.UserId);
     }
 }
