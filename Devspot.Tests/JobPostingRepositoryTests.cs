@@ -3,49 +3,42 @@ using DevSpot.Models;
 using DevSpot.Repositories;
 using DevSpot.Services;
 using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-public class JobPostingRepositoryTests
+public class JobPostingRepositoryTests : IDisposable
 {
     private readonly DbContextOptions<ApplicationDbContext> _options;
+    private readonly ApplicationDbContext _context;
+    private readonly JobPostingService _service;
 
     public JobPostingRepositoryTests()
     {
         _options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase("JobPostingDb")
+            .UseInMemoryDatabase($"JobPostingDb_{Guid.NewGuid()}")
             .Options;
+
+        _context = new ApplicationDbContext(_options);
+        _service = new JobPostingService(new JobPostingRepository(_context));
     }
 
-    private ApplicationDbContext CreateDbContext() => new ApplicationDbContext(_options);
+    private JobPosting CreateJobPosting(string title, string description, string company, string location, string userId) =>
+        new JobPosting
+        {
+            Title = title,
+            Description = description,
+            Company = company,
+            Location = location,
+            UserId = userId
+        };
 
     [Fact]
     public async Task AddJobPostingAsync_ShouldAddJobPosting()
     {
-        // Arrange
-        // db context
-        using var context = CreateDbContext();
+        var jobPosting = CreateJobPosting("Software Developer", "C# Developer position", "Tech Corp", "Remote", "test-user-id");
 
-        // job posting repository
-        var repository = new JobPostingRepository(context);
+        await _service.AddJobPostingAsync(jobPosting);
+        var result = await _context.JobPostings.FirstOrDefaultAsync(j => j.Title == "Software Developer");
 
-        // job posting service
-        var service = new JobPostingService(repository);
-
-        // execute 
-        var jobPosting = new JobPosting
-        {
-            Title = "Software Developer",
-            Description = "C# Developer position",
-            Company = "Tech Corp",
-            Location = "Remote",
-            UserId = "test-user-id"
-        };
-
-        await service.AddJobPostingAsync(jobPosting);
-
-        // result
-        var result = await context.JobPostings.FirstOrDefaultAsync(j => j.Title == "Software Developer");
-
-        // assert
         Assert.NotNull(result);
         Assert.Equal("Software Developer", result.Title);
         Assert.Equal("C# Developer position", result.Description);
@@ -57,44 +50,19 @@ public class JobPostingRepositoryTests
     [Fact]
     public async Task GetAllJobPostingsAsync_ShouldReturnAllJobPostings()
     {
-        // Arrange
-        // db context
-        using var context = CreateDbContext();
-        // job posting repository
-        var repository = new JobPostingRepository(context);
-        // job posting service
-        var service = new JobPostingService(repository);
-        // job posting data 
         var jobPostings = new List<JobPosting>
         {
-            new JobPosting
-            {
-                Title = "Software Developer",
-                Description = "C# Developer position",
-                Company = "Tech Corp",
-                Location = "Remote",
-                UserId = "test-user-id"
-            },
-            new JobPosting
-            {
-                Title = "Frontend Developer",
-                Description = "React Developer position",
-                Company = "Web Corp",
-                Location = "Remote",
-                UserId = "test-user-id"
-            }
+            CreateJobPosting("Software Developer", "C# Developer position", "Tech Corp", "Remote", "test-user-id"),
+            CreateJobPosting("Frontend Developer", "React Developer position", "Web Corp", "Remote", "test-user-id")
         };
 
-        // execute
         foreach (var jobPosting in jobPostings)
         {
-            await service.AddJobPostingAsync(jobPosting);
+            await _service.AddJobPostingAsync(jobPosting);
         }
 
-        // result
-        var result = await service.GetAllJobPostingsAsync();
+        var result = await _service.GetAllJobPostingsAsync();
 
-        // assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count());
     }
@@ -102,38 +70,57 @@ public class JobPostingRepositoryTests
     [Fact]
     public async Task GetJobPostingByIdAsync_ShouldReturnJobPosting()
     {
-        // Arrange
-        // db context
-        using var context = CreateDbContext();
+        var jobPosting = CreateJobPosting("Software Developer", "C# Developer position", "Tech Corp", "Remote", "test-user-id");
 
-        // job posting repository
-        var repository = new JobPostingRepository(context);
+        await _service.AddJobPostingAsync(jobPosting);
+        var result = await _service.GetJobPostingByIdAsync(jobPosting.Id);
 
-        // job posting service
-        var service = new JobPostingService(repository);
-
-        // job posting data
-        var jobPosting = new JobPosting
-        {
-            Title = "Software Developer",
-            Description = "C# Developer position",
-            Company = "Tech Corp",
-            Location = "Remote",
-            UserId = "test-user-id"
-        };
-
-        // execute 
-        await service.AddJobPostingAsync(jobPosting);
-
-        // result
-        var result = await service.GetJobPostingByIdAsync(1);
-
-        // assert
         Assert.NotNull(result);
         Assert.Equal("Software Developer", result.Title);
         Assert.Equal("C# Developer position", result.Description);
         Assert.Equal("Tech Corp", result.Company);
         Assert.Equal("Remote", result.Location);
         Assert.Equal("test-user-id", result.UserId);
+    }
+
+    [Fact]
+    public async Task UpdateJobPostingAsync_ShouldUpdateJobPosting()
+    {
+        var jobPosting = CreateJobPosting("Software Developer", "C# Developer position", "Tech Corp", "Remote", "test-user-id");
+
+        await _service.AddJobPostingAsync(jobPosting);
+
+        jobPosting.Title = "Frontend Developer";
+        jobPosting.Description = "React Developer position";
+        jobPosting.Company = "Web Corp";
+        jobPosting.Location = "Remote";
+        await _service.UpdateJobPostingAsync(jobPosting);
+
+        var result = await _context.JobPostings.FirstOrDefaultAsync(j => j.Title == "Frontend Developer");
+
+        Assert.NotNull(result);
+        Assert.Equal("Frontend Developer", result.Title);
+        Assert.Equal("React Developer position", result.Description);
+        Assert.Equal("Web Corp", result.Company);
+        Assert.Equal("Remote", result.Location);
+        Assert.Equal("test-user-id", result.UserId);
+    }
+
+    [Fact]
+    public async Task DeleteJobPostingAsync_ShouldDeleteJobPosting()
+    {
+        var jobPosting = CreateJobPosting("Software Developer", "C# Developer position", "Tech Corp", "Remote", "test-user-id");
+
+        await _service.AddJobPostingAsync(jobPosting);
+        await _service.DeleteJobPostingAsync(jobPosting.Id);
+
+        var result = await _context.JobPostings.FirstOrDefaultAsync(j => j.Title == "Software Developer");
+
+        Assert.Null(result);
+    }
+
+    public void Dispose()
+    {
+        _context.Dispose();
     }
 }
