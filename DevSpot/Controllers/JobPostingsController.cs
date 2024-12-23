@@ -70,5 +70,34 @@ namespace DevSpot.Controllers
                 return View("Error", ex.Message);
             }
         }
+
+        [HttpDelete]
+        [Authorize(Roles = "Admin,Employer")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var jobPosting = await _jobPostingService.GetJobPostingByIdAsync(id);
+                if (jobPosting == null)
+                {
+                    return BadRequest(new { success = false, message = "Job posting not found" });
+                }
+
+                // Check if user is authorized to delete this posting
+                var currentUserId = _userManager.GetUserId(User);
+                if (!User.IsInRole("Admin") && jobPosting.UserId != currentUserId)
+                {
+                    return BadRequest(new { success = false, message = "Unauthorized to delete this posting" });
+                }
+
+                await _jobPostingService.DeleteJobPostingAsync(id);
+                return Ok(new { success = true, message = "Job posting deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

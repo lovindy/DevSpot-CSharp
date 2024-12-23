@@ -1,0 +1,93 @@
+﻿@* @model DevSpot.ViewModels.JobPostingViewModel *@
+
+@* <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8"> *@
+@* 	<div class="bg-white rounded-lg shadow p-6"> *@
+@* 		<h1 class="text-2xl font-bold text-gray-900 mb-6">Edit Job Posting</h1> *@
+@* 		<form asp-action="Edit" method="post"> *@
+@* 			<input type="hidden" asp-for="Id" /> *@
+@* 			<div class="space-y-6"> *@
+@* 				<div> *@
+@* 					<label asp-for="Title" class="block text-sm font-medium text-gray-700">Job Title</label> *@
+@* 					<input asp-for="Title" class="mt-1 form-input block w-full rounded-md border-gray-300 shadow-sm" /> *@
+@* 					<span asp-validation-for="Title" class="text-red-600 text-sm"></span> *@
+@* 				</div> *@
+
+@* 				<div> *@
+@* 					<label asp-for="Company" class="block text-sm font-medium text-gray-700">Company</label> *@
+@* 					<input asp-for="Company" class="mt-1 form-input block w-full rounded-md border-gray-300 shadow-sm" /> *@
+@* 					<span asp-validation-for="Company" class="text-red-600 text-sm"></span> *@
+@* 				</div> *@
+
+@* 				<div> *@
+@* 					<label asp-for="Location" class="block text-sm font-medium text-gray-700">Location</label> *@
+@* 					<input asp-for="Location" class="mt-1 form-input block w-full rounded-md border-gray-300 shadow-sm" /> *@
+@* 					<span asp-validation-for="Location" class="text-red-600 text-sm"></span> *@
+@* 				</div> *@
+
+@* 				<div> *@
+@* 					<label asp-for="Description" class="block text-sm font-medium text-gray-700">Description</label> *@
+@* 					<textarea asp-for="Description" rows="6" class="mt-1 form-textarea block w-full rounded-md border-gray-300 shadow-sm"></textarea> *@
+@* 					<span asp-validation-for="Description" class="text-red-600 text-sm"></span> *@
+@* 				</div> *@
+
+@* 				<div class="flex justify-end space-x-4"> *@
+@* 					<a asp-action="Index" class="btn-outline">Cancel</a> *@
+@* 					<button type="submit" class="btn-primary">Save Changes</button> *@
+@* 				</div> *@
+@* 			</div> *@
+@* 		</form> *@
+@* 	</div> *@
+@* </div> *@
+
+@* <style> *@
+@* 	.btn-primary { *@
+@* 		background-color: #2ea44f; *@
+@* 		color: white; *@
+@* 		padding: 6px 16px; *@
+@* 		border-radius: 6px; *@
+@* 		font-weight: 500; *@
+@* 		display: inline-flex; *@
+@* 		align-items: center; *@
+@* 		text-decoration: none; *@
+@* 	} *@
+
+@* 	.btn-primary:hover { *@
+@* 			background-color: #2c974b; *@
+@* 			color: white; *@
+@* 	} *@
+
+@* 	.btn-outline { *@
+@* 		border: 1px solid #0366d6; *@
+@* 		color: #0366d6; *@
+@* 		padding: 4px 12px; *@
+@* 		border-radius: 6px; *@
+@* 		font-size: 14px; *@
+@* 		text-decoration: none; *@
+@* 	} *@
+
+@* 		.btn-outline:hover { *@
+@* 			background-color: #0366d6; *@
+@* 			color: white; *@
+@* 		} *@
+
+@* 	.form-input, .form-textarea { *@
+@* 		width: 100%; *@
+@* 		padding: 0.5rem; *@
+@* 		border: 1px solid #d1d5db; *@
+@* 		border-radius: 0.375rem; *@
+@* 	} *@
+
+@* 		.form-input:focus, .form-textarea:focus { *@
+@* 			outline: none; *@
+@* 			/* ring: 2px; */ *@
+@* 			/* ring-color: #0366d6; */ *@
+@* 			border-color: #0366d6; *@
+@* 		} *@
+@* </style> *@
+
+@* @section Scripts { *@
+@* 	<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"> *@
+@* 	@{ *@
+@* 		await Html.RenderPartialAsync("_ValidationScriptsPartial"); *@
+@* 	} *@
+@* } *@
