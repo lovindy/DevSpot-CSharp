@@ -3,48 +3,208 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - DevSpot</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/DevSpot.styles.css" asp-append-version="true" />
+    <title>@ViewData["Title"] - DiaryApp</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .nav-link {
+            position: relative;
+        }
+
+            .nav-link::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                bottom: 0;
+                left: 50%;
+                background-color: #4f46e5;
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+            }
+
+            .nav-link:hover::after {
+                width: 100%;
+            }
+
+        .account-dropdown {
+            transform-origin: top;
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+            transform: scaleY(0);
+            opacity: 0;
+        }
+
+            .account-dropdown.active {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+    </style>
 </head>
-<body>
+<body class="flex flex-col min-h-screen bg-gray-50">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">DevSpot</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <!-- Logo and Brand -->
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <a asp-area="" asp-controller="JobPostings" asp-action="Index" class="flex items-center">
+                                <i class="fas fa-book text-indigo-600 text-2xl mr-2"></i>
+                                <span class="text-xl font-bold text-gray-800">DevSpot</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Navigation -->
+                    <div class="hidden sm:flex sm:items-center">
+                        <div class="flex space-x-4">
+                            <a asp-area="" asp-controller="JobPostings" asp-action="Index"
+                               class="nav-link text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                                <i class="fas fa-home mr-1"></i> All Jobs
+                            </a>
+                            <a asp-area="" asp-controller="JobPostings" asp-action="Create"
+                               class="nav-link text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                                <i class="fas fa-calendar-alt mr-1"></i> Post A Job
+                            </a>
+                           
+                            <div class="relative" id="account-container">
+                                <button id="account-button" class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out flex items-center">
+                                    <i class="fas fa-user-circle mr-1"></i> Account
+                                    <i class="fas fa-chevron-down ml-1 text-xs transition-transform duration-200"></i>
+                                </button>
+                                <div id="account-dropdown" class="account-dropdown absolute right-0 w-48 py-2 mt-2 bg-white rounded-md shadow-xl z-50">
+                                    <a asp-area="" asp-controller="Account" asp-action="Profile"
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition duration-150 ease-in-out">
+                                        <i class="fas fa-user mr-2"></i>Profile
+                                    </a>
+                                    <a asp-area="" asp-controller="Account" asp-action="Settings"
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition duration-150 ease-in-out">
+                                        <i class="fas fa-cog mr-2"></i>Settings
+                                    </a>
+                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <a asp-area="" asp-controller="Account" asp-action="Logout"
+                                       class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition duration-150 ease-in-out">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Navigation Button -->
+                    <div class="flex items-center sm:hidden">
+                        <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-indigo-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation Menu -->
+            <div id="mobile-menu" class="hidden sm:hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1">
+                    <a asp-area="" asp-controller="JobPostings" asp-action="Index"
+                       class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-100 transition duration-150 ease-in-out">
+						<i class="fas fa-home mr-1"></i> All Jobs
+                    </a>
+                    <a asp-area="" asp-controller="JobPostings" asp-action="Create"
+                       class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-100 transition duration-150 ease-in-out">
+                        <i class="fas fa-calendar-alt mr-1"></i> Post A Job
+                    </a>
+                   
+                    <div class="border-t border-gray-200 my-2"></div>
+                    <a asp-area="" asp-controller="Account" asp-action="Profile"
+                       class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-100 transition duration-150 ease-in-out">
+                        <i class="fas fa-user-circle mr-1"></i> Profile
+                    </a>
+                    <a asp-area="" asp-controller="Account" asp-action="Settings"
+                       class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-100 transition duration-150 ease-in-out">
+                        <i class="fas fa-cog mr-1"></i> Settings
+                    </a>
+                    <a asp-area="" asp-controller="Account" asp-action="Logout"
+                       class="block px-3 py-2 text-base font-medium text-red-600 hover:text-red-700 hover:bg-gray-100 transition duration-150 ease-in-out">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </a>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <!-- Main Content -->
+    <div class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - DevSpot - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                <div class="text-gray-500">
+                    &copy; 2024 - DiaryApp - All rights reserved
+                </div>
+                <div class="flex space-x-6">
+                    <a asp-area="" asp-controller="JobPostings" asp-action="Privacy"
+                       class="text-gray-500 hover:text-indigo-600 transition duration-150 ease-in-out">
+                        <i class="fas fa-shield-alt mr-1"></i> Privacy
+                    </a>
+                    <a asp-area="" asp-controller="JobPostings" asp-action="Terms"
+                       class="text-gray-500 hover:text-indigo-600 transition duration-150 ease-in-out">
+                        <i class="fas fa-file-contract mr-1"></i> Terms
+                    </a>
+                    <a asp-area="" asp-controller="JobPostings" asp-action="Contact"
+                       class="text-gray-500 hover:text-indigo-600 transition duration-150 ease-in-out">
+                        <i class="fas fa-envelope mr-1"></i> Contact
+                    </a>
+                </div>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Account dropdown toggle
+        const accountButton = document.getElementById('account-button');
+        const accountDropdown = document.getElementById('account-dropdown');
+        const accountContainer = document.getElementById('account-container');
+
+        function toggleDropdown() {
+            accountDropdown.classList.toggle('active');
+            accountButton.querySelector('.fa-chevron-down').style.transform =
+                accountDropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0)';
+        }
+
+        accountButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleDropdown();
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!accountContainer.contains(e.target)) {
+                accountDropdown.classList.remove('active');
+                accountButton.querySelector('.fa-chevron-down').style.transform = 'rotate(0)';
+            }
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
