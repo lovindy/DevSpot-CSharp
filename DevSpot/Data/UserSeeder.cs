@@ -8,36 +8,63 @@ namespace DevSpot.Data
         public static async Task SeedUsersAsync(IServiceProvider serviceProvider)
         {
             var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var logger = serviceProvider.GetRequiredService<ILogger<UserSeeder>>();
 
-            await CreateUserWithRole(userManager, "admin@devspot.com", "Admin123!", Roles.Admin);
-            await CreateUserWithRole(userManager, "employer@devspot.com", "Employer123!", Roles.Employer);
-            await CreateUserWithRole(userManager, "jobseeker@devspot.com", "JobSeeker123!", Roles.JobSeeker);
-
+            try
+            {
+                await CreateUserWithRole(userManager, logger, "admin@devspot.com", "Admin123!", Roles.Admin);
+                await CreateUserWithRole(userManager, logger, "employer@devspot.com", "Employer123!", Roles.Employer);
+                await CreateUserWithRole(userManager, logger, "jobseeker@devspot.com", "JobSeeker123!", Roles.JobSeeker);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while seeding users");
+                throw;
+            }
         }
 
-        private static async Task CreateUserWithRole(UserManager<IdentityUser> userManager, string email, string password, string role)
+        private static async Task CreateUserWithRole(
+            UserManager<IdentityUser> userManager,
+            ILogger logger,
+            string email,
+            string password,
+            string role)
         {
-            if (await userManager.FindByEmailAsync(email) == null)
+            var existingUser = await userManager.FindByEmailAsync(email);
+            if (existingUser != null)
             {
-                var user = new IdentityUser
-                {
-                    Email = email,
-                    EmailConfirmed = true,
-                    UserName = email
-                };
+                logger.LogInformation($"User {email} already exists");
+                return;
+            }
 
-                var result = await userManager.CreateAsync(user);
+            var user = new IdentityUser
+            {
+                Email = email,
+                EmailConfirmed = true,
+                UserName = email,
+                NormalizedEmail = email.ToUpper(),
+                NormalizedUserName = email.ToUpper()
+            };
 
-                if (result.Succeeded)
+            var result = await userManager.CreateAsync(user, password);
+            if (result.Succeeded)
+            {
+                var roleResult = await userManager.AddToRoleAsync(user, role);
+                if (roleResult.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(user, role);
+                    logger.LogInformation($"Created user {email} with role {role}");
                 }
                 else
                 {
-                    throw new Exception($"Failed to create user with email ${user.Email}. Errors: {string.Join(",", result.Errors)}");
+                    logger.LogError($"Failed to add role {role} to user {email}. Errors: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+                    throw new Exception($"Failed to add role {role} to user {email}");
                 }
             }
-
+            else
+            {
+                logger.LogError($"Failed to create user {email}. Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                throw new Exception($"Failed to create user {email}. Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
         }
     }
 }

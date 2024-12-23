@@ -1,12 +1,14 @@
 ﻿using DevSpot.Models;
 using DevSpot.Services;
 using DevSpot.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace DevSpot.Controllers
 {
+    [Authorize]
     public class JobPostingsController : Controller
     {
         private readonly JobPostingService _jobPostingService;
@@ -19,6 +21,7 @@ namespace DevSpot.Controllers
         }
 
         // Action method for listing all job postings
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             try
@@ -34,6 +37,7 @@ namespace DevSpot.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,Employer")]
         public IActionResult Create()
         {
             return View();

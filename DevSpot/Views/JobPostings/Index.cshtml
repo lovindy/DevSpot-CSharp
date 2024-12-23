@@ -1,47 +1,50 @@
 ﻿@model IEnumerable<DevSpot.Models.JobPosting>
 
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="display-4 mb-0">Developer Jobs</h1>
-        <a asp-action="Create" class="btn btn-primary px-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Developer Jobs</h1>
+            <p class="text-gray-600 mt-2">Find your next opportunity in tech</p>
+        </div>
+        <a asp-action="Create" class="btn-primary">
+            <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
             Post a Job
         </a>
     </div>
 
-    <div class="row g-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach (var job in Model)
         {
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm hover-shadow transition">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <h5 class="card-title text-primary mb-0">@job.Title</h5>
-                            <span class="badge bg-light text-dark">
-                                @job.PostedDate.ToString("MMM dd")
-                            </span>
-                        </div>
-                        <h6 class="mb-2">@job.Company</h6>
-                        <p class="text-muted mb-2">
-                            <i class="bi bi-geo-alt me-1"></i>
-                            @job.Location
-                        </p>
-                        <p class="card-text mb-3">
-                            @(job.Description.Length > 150
-                                ? job.Description.Substring(0, 147) + "..."
-                                : job.Description)
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <a href="#" class="btn btn-outline-primary btn-sm">View Details</a>
-                            @if (job.IsApproved)
-                            {
-                                <span class="badge bg-success">Approved</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark">Pending</span>
-                            }
-                        </div>
-                    </div>
+            <div class="job-card bg-white rounded-lg p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h2 class="text-xl font-semibold text-gray-900">@job.Title</h2>
+                    <span class="text-sm text-gray-500">@job.PostedDate.ToString("MMM dd")</span>
+                </div>
+                <h3 class="text-lg text-gray-700 mb-2">@job.Company</h3>
+                <p class="text-gray-600 mb-2 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    @job.Location
+                </p>
+                <p class="text-gray-600 mb-6">
+                    @(job.Description.Length > 150
+                        ? job.Description.Substring(0, 147) + "..."
+                        : job.Description)
+                </p>
+                <div class="flex justify-between items-center">
+                    <a href="#" class="btn-outline">View Details</a>
+                    @if (job.IsApproved)
+                    {
+                        <span class="badge badge-success">Approved</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-pending">Pending</span>
+                    }
                 </div>
             </div>
         }
@@ -49,15 +52,64 @@
 </div>
 
 <style>
-    .hover-shadow:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    .job-card {
+        transition: all 0.2s ease;
+        border: 1px solid #e1e4e8;
     }
-    .transition {
-        transition: all .2s ease-in-out;
+
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #0366d6;
+        }
+
+    .badge {
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 12px;
     }
+
+    .badge-success {
+        background-color: #2ea44f;
+        color: white;
+    }
+
+    .badge-pending {
+        background-color: #ffd33d;
+        color: #24292e;
+    }
+
+    .btn-primary {
+        background-color: #2ea44f;
+        color: white;
+        padding: 6px 16px;
+        border-radius: 6px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #2c974b;
+            color: white;
+        }
+
+    .btn-outline {
+        border: 1px solid #0366d6;
+        color: #0366d6;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+        .btn-outline:hover {
+            background-color: #0366d6;
+            color: white;
+        }
 </style>
 
 @section Scripts {
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 }
